@@ -9,7 +9,7 @@ O formulário da página principal envia a mensagem por uma Vercel Function atra
 3. No projeto Vercel, em **Settings → Environment Variables**, crie estas variáveis para **Production**:
 
    - `RESEND_API_KEY` — **Secret**, valor da API key.
-   - `CONTACT_TO_EMAIL` — **Config**, endereço de teste que deve receber as mensagens.
+   - `CONTACT_TO_EMAIL` — **Secret**, endereço de teste que deve receber as mensagens.
    - `CONTACT_FROM_EMAIL` — **Config**, `Farmácia Sousa <onboarding@resend.dev>` durante os testes.
 
 4. Faça **Redeploy** do deployment de produção. Envie uma mensagem de teste sem dados pessoais reais e confirme a receção na caixa de entrada e no painel Resend.

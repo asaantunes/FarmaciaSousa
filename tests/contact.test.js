@@ -58,3 +58,18 @@ test('envia para o destinatário configurado e usa o visitante como reply-to', a
     assert.match(sent.text, /Mensagem de teste/);
   } finally { globalThis.fetch = oldFetch; Object.assign(process.env, previous); }
 });
+
+test('não confirma envio quando o serviço rejeita a mensagem', async () => {
+  const previous = { ...process.env };
+  const oldFetch = globalThis.fetch;
+  process.env.RESEND_API_KEY = 'test-key';
+  process.env.CONTACT_TO_EMAIL = 'destino@example.com';
+  process.env.CONTACT_FROM_EMAIL = 'Farmácia Sousa <onboarding@resend.dev>';
+  globalThis.fetch = async () => ({ ok: false, status: 403 });
+  try {
+    const res = response();
+    await handler(request(), res);
+    assert.equal(res.statusCode, 502);
+    assert.equal(res.body.ok, undefined);
+  } finally { globalThis.fetch = oldFetch; Object.assign(process.env, previous); }
+});
