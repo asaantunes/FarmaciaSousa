@@ -1,16 +1,1 @@
-const button = document.querySelector('.menu-button');
-const header = document.querySelector('.site-header');
-
-button.addEventListener('click', () => {
-  const open = header.classList.toggle('menu-open');
-  button.setAttribute('aria-expanded', open);
-  button.textContent = open ? 'Fechar' : 'Menu';
-});
-
-document.querySelectorAll('nav a').forEach((link) => link.addEventListener('click', () => {
-  header.classList.remove('menu-open');
-  button.setAttribute('aria-expanded', 'false');
-  button.textContent = 'Menu';
-}));
-
-document.querySelector('#year').textContent = new Date().getFullYear();
+const e='farmacia.sousa@farmaciasholon.pt';document.querySelector('#year').textContent=new Date().getFullYear();function send(id,sub,keys){document.querySelector(id).onsubmit=function(x){x.preventDefault();const d=new FormData(x.target),b=keys.map(function(k){return k+': '+d.get(k)}).join('\n');location.href='mailto:'+e+'?subject='+encodeURIComponent(sub)+'&body='+encodeURIComponent(b);x.target.querySelector('.feedback').textContent='A sua aplicação de e-mail vai abrir. Envie a mensagem para concluir.'}}send('#orderForm','Pedido através do site',['nome','telefone','pedido']);send('#contactForm','Mensagem através do site',['nome','email','mensagem']);const m=document.querySelector('dialog'),p=document.querySelector('#policy'),txt={privacy:['Política de Privacidade','Os dados enviados pelos formulários destinam-se apenas a responder ao seu pedido. Não envie receitas, dados clínicos ou outra informação de saúde através deste site.'],cookies:['Política de Cookies','Este site utiliza apenas armazenamento local essencial para guardar a preferência de cookies. Não utilizamos cookies de publicidade ou ferramentas de análise.']};document.querySelectorAll('[data-policy]').forEach(function(b){b.onclick=function(){const x=txt[b.dataset.policy];p.innerHTML='<h2>'+x[0]+'</h2><p>'+x[1]+'</p>';m.showModal()}});document.querySelector('.close').onclick=function(){m.close()};const c=document.querySelector('.cookies');if(!localStorage.choice)c.classList.add('show');document.querySelector('#accept').onclick=function(){localStorage.choice='yes';c.classList.remove('show')};document.querySelector('#lang').onclick=function(){alert('A versão em inglês será incluída depois de validar os textos em português.')};
