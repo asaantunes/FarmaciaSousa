@@ -27,7 +27,48 @@ function textParagraphs(text){
   return root;
 }
 function emptyArticles(target){const note=document.createElement('p');note.className='articles-empty';note.textContent='Novos artigos e conselhos da farmácia serão publicados aqui em breve.';target.append(note)}
-async function loadPublicArticles(){try{const response=await fetch('/api/articles',{cache:'no-store'});if(!response.ok)return;const articles=(await response.json()).filter(item=>item.published);const cards=document.querySelector('.article-grid');if(cards){cards.replaceChildren();articles.slice(0,3).forEach(article=>{const card=document.createElement('article'),link=document.createElement('a');link.href='artigos.html#'+safeSlug(article.id);const image=document.createElement('img');image.src=article.image;image.alt='';const category=document.createElement('small');category.textContent=article.category||'SAÚDE';const title=document.createElement('h3');title.textContent=article.title;const more=document.createElement('span');more.className='read-more';more.textContent='Ler artigo →';link.append(image,category,title,more);card.append(link);cards.append(card)});if(!articles.length)emptyArticles(cards)}
+function renderHomeArticles(cards,articles){
+  let first=0;
+  const visibleCount=Math.min(3,articles.length);
+  const controls=document.createElement('div');
+  controls.className='article-controls';
+  const previous=document.createElement('button');previous.type='button';previous.className='article-control';previous.setAttribute('aria-label','Artigos anteriores');previous.textContent='←';
+  const status=document.createElement('span');status.className='article-status';status.setAttribute('aria-live','polite');
+  const next=document.createElement('button');next.type='button';next.className='article-control';next.setAttribute('aria-label','Artigos seguintes');next.textContent='→';
+  controls.append(previous,status,next);
+  function show(){
+    cards.replaceChildren();
+    for(let offset=0;offset<visibleCount;offset++){
+      const article=articles[(first+offset)%articles.length];
+      const card=document.createElement('article'),link=document.createElement('a');link.href='artigos.html#'+safeSlug(article.id);
+      const image=document.createElement('img');image.src=article.image;image.alt='';image.loading='lazy';
+      const category=document.createElement('small');category.textContent=article.category||'SAÚDE';
+      const title=document.createElement('h3');title.textContent=article.title;
+      const more=document.createElement('span');more.className='read-more';more.textContent='Ler artigo →';
+      link.append(image,category,title,more);card.append(link);cards.append(card);
+    }
+    status.textContent=`${first+1} / ${articles.length}`;
+  }
+  if(!articles.length){cards.replaceChildren();emptyArticles(cards);return}
+  if(articles.length>visibleCount){
+    cards.after(controls);
+    previous.addEventListener('click',()=>{first=(first-1+articles.length)%articles.length;show()});
+    next.addEventListener('click',()=>{first=(first+1)%articles.length;show()});
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      let timer;
+      const start=()=>{if(!timer)timer=window.setInterval(()=>{first=(first+1)%articles.length;show()},8000)};
+      const stop=()=>{window.clearInterval(timer);timer=undefined};
+      cards.parentElement.addEventListener('mouseenter',stop);
+      cards.parentElement.addEventListener('mouseleave',start);
+      cards.parentElement.addEventListener('focusin',stop);
+      cards.parentElement.addEventListener('focusout',()=>{if(!cards.parentElement.contains(document.activeElement))start()});
+      document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+      start();
+    }
+  }
+  show();
+}
+async function loadPublicArticles(){try{const response=await fetch('/api/articles',{cache:'no-store'});if(!response.ok)return;const articles=(await response.json()).filter(item=>item.published);const cards=document.querySelector('.article-grid');if(cards)renderHomeArticles(cards,articles);
 const root=document.querySelector('#dynamic-articles');if(root){root.replaceChildren();if(!articles.length)emptyArticles(root);articles.forEach((article,index)=>{const section=document.createElement('article');section.className='story'+(index%2?' reverse':'');section.id=safeSlug(article.id);const visual=document.createElement('div');visual.className='story-image';const image=document.createElement('img');image.src=article.image;image.alt='';visual.append(image);const copy=document.createElement('div');copy.className='story-copy';const eyebrow=document.createElement('p');eyebrow.className='eyebrow';eyebrow.textContent=(article.category||'SAÚDE')+' · FARMÁCIA SOUSA';const heading=document.createElement('h2');heading.textContent=article.title;const excerpt=document.createElement('p');excerpt.className='article-excerpt';excerpt.textContent=article.excerpt||'';copy.append(eyebrow,heading,excerpt,textParagraphs(article.body));section.append(visual,copy);root.append(section)});const hash=safeSlug(decodeURIComponent(location.hash.slice(1)));if(hash)document.getElementById(hash)?.scrollIntoView()}}
 catch(error){console.info('Conteúdo dinâmico de artigos indisponível neste alojamento.')}}
 loadPublicArticles();
