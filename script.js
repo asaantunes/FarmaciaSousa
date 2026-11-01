@@ -1,19 +1,30 @@
-const whatsappNumber='351925418749';
-document.querySelector('#year').textContent=new Date().getFullYear();
-document.querySelector('#contactForm').addEventListener('submit',(event)=>{
+document.querySelector('#year').textContent = new Date().getFullYear();
+
+const contactForm = document.querySelector('#contactForm');
+contactForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const form=event.currentTarget;
-  const data=new FormData(form);
-  const nome=String(data.get('nome')||'').trim();
-  const email=String(data.get('email')||'').trim();
-  const mensagem=String(data.get('mensagem')||'').trim();
-  const lines=[
-    'Olá, gostaria de contactar a Farmácia Sousa.',
-    `Nome: ${nome}`,
-    ...(email?[`Email: ${email}`]:[]),
-    `Mensagem: ${mensagem}`
-  ];
-  const url=`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
-  window.open(url,'_blank','noopener,noreferrer');
-  form.querySelector('.feedback').textContent='O WhatsApp abriu com a mensagem preparada. Confirme o envio na conversa.';
+
+  const button = contactForm.querySelector('button[type="submit"]');
+  const feedback = contactForm.querySelector('.feedback');
+  button.disabled = true;
+  contactForm.setAttribute('aria-busy', 'true');
+  feedback.textContent = 'A enviar a mensagem…';
+
+  try {
+    const response = await fetch(contactForm.action, {
+      method: 'POST',
+      body: new FormData(contactForm),
+      headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) throw new Error('Falha no envio');
+
+    contactForm.reset();
+    feedback.textContent = 'Mensagem enviada. Obrigado pelo seu contacto.';
+  } catch {
+    feedback.textContent = 'Não foi possível enviar a mensagem. Tente novamente ou ligue-nos para o 281 322 242.';
+  } finally {
+    button.disabled = false;
+    contactForm.removeAttribute('aria-busy');
+  }
 });
