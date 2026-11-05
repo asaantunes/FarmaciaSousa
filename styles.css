@@ -9,3 +9,5 @@
 .article-control{width:36px;height:36px;border:1px solid var(--green);border-radius:50%;background:#fff;color:var(--green);font:20px var(--sans);cursor:pointer}
 .article-control:hover,.article-control:focus-visible{background:var(--green);color:#fff}
 .article-status{min-width:72px;text-align:center;font-size:12px;color:var(--green)}
+
+footer small a{font-size:inherit;font-weight:inherit}.consent a{color:var(--green);text-underline-offset:2px}
